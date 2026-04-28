@@ -1,0 +1,52 @@
+import { useContext } from "react";
+import Combatant from "../components/battle/Combatant";
+import MoveSelection from "../components/battle/MoveSelection";
+import { RunConfigContext } from "../context/RunConfigContext";
+import { usePlayer } from "../context/PlayerContext";
+import { useBattle } from "../hooks/useBattle";
+
+interface Props {
+  onBack: () => void;
+}
+
+export default function BattleScreen({ onBack }: Props) {
+  const context = useContext(RunConfigContext);
+  const { player } = usePlayer();
+  const monster = context?.config?.monsters[0];
+
+  if (!monster) return null;
+
+  const { battle } = useBattle(player.baseStats, monster);
+
+  const heroHp   = { current: battle.heroCurrentHp,    max: player.baseStats.health };
+  const monsterHp = { current: battle.monsterCurrentHp, max: monster.stats.health };
+
+  return (
+    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-between p-8">
+      <div className="w-full flex items-center">
+        <button
+          onClick={onBack}
+          className="text-gray-400 hover:text-white text-sm tracking-widest uppercase transition-colors"
+        >
+          ← Back
+        </button>
+        <span className="mx-auto text-gray-500 tracking-widest uppercase text-sm">
+          Battle
+        </span>
+        <div className="w-12" />
+      </div>
+
+      <div className="flex items-center justify-center gap-24">
+        <Combatant label="HERO" hp={heroHp} />
+        <span className="text-gray-600 text-2xl font-bold">VS</span>
+        <Combatant label={monster.name} hp={monsterHp} />
+      </div>
+
+      <MoveSelection
+        moves={player.equippedMoves}
+        onSelect={(move) => console.log("selected", move.id)}
+        disabled={battle.phase !== "player_turn"}
+      />
+    </div>
+  );
+}
