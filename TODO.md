@@ -1,7 +1,9 @@
 # 28.04.2026
 - [x] Render monster and player with healthbars
 - [x] Render moves 
-- [ ] Actual logic of attacking monster
+
+# 29.04.2026
+- [ ] Actual logic of attacking monste
 - [ ] Logic of monster defending
 - [ ] Animation for moves/cards
 - [ ] Animation for attacking

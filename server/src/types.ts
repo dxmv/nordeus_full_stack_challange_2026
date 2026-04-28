@@ -27,12 +27,18 @@ export interface Stats {
   magic: number;
 }
 
+export interface SpriteCoords {
+  sheet: "monsters" | "rogues";
+  row: number;
+  col: number;
+}
+
 export interface Monster {
   id: string;
   name: string;
   stats: Stats;
   moves: Move[];
-  sprite: string;
+  sprite: SpriteCoords;
 }
 
 export interface RunConfig {

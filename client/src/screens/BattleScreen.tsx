@@ -4,6 +4,7 @@ import MoveSelection from "../components/battle/MoveSelection";
 import { RunConfigContext } from "../context/RunConfigContext";
 import { usePlayer } from "../context/PlayerContext";
 import { useBattle } from "../hooks/useBattle";
+import { HERO_SPRITE } from "../data/sprites";
 
 interface Props {
   onBack: () => void;
@@ -37,9 +38,9 @@ export default function BattleScreen({ onBack }: Props) {
       </div>
 
       <div className="flex items-center justify-center gap-24">
-        <Combatant label="HERO" hp={heroHp} />
+        <Combatant label="Hero" hp={heroHp} sprite={HERO_SPRITE} />
         <span className="text-gray-600 text-2xl font-bold">VS</span>
-        <Combatant label={monster.name} hp={monsterHp} />
+        <Combatant label={monster.name} hp={monsterHp} sprite={monster.sprite} />
       </div>
 
       <MoveSelection

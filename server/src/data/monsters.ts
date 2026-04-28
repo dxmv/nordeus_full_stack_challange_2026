@@ -7,7 +7,7 @@ export const MONSTERS: Monster[] = [
   {
     id: "goblin_warrior",
     name: "Goblin Warrior",
-    sprite: "goblin_warrior",
+    sprite: { sheet: "monsters", row: 0, col: 2 },
     stats: { health: 80, attack: 12, defense: 5, magic: 2 },
     moves: [
       {
@@ -47,7 +47,7 @@ export const MONSTERS: Monster[] = [
   {
     id: "giant_spider",
     name: "Giant Spider",
-    sprite: "giant_spider",
+    sprite: { sheet: "monsters", row: 6, col: 8 },
     stats: { health: 95, attack: 15, defense: 8, magic: 3 },
     moves: [
       {
@@ -87,7 +87,7 @@ export const MONSTERS: Monster[] = [
   {
     id: "goblin_mage",
     name: "Goblin Mage",
-    sprite: "goblin_mage",
+    sprite: { sheet: "monsters", row: 0, col: 6 },
     stats: { health: 85, attack: 7, defense: 5, magic: 18 },
     moves: [
       {
@@ -127,7 +127,7 @@ export const MONSTERS: Monster[] = [
   {
     id: "witch",
     name: "Witch",
-    sprite: "witch",
+    sprite: { sheet: "monsters", row: 5, col: 4 },
     stats: { health: 110, attack: 8, defense: 6, magic: 22 },
     moves: [
       {
@@ -167,7 +167,7 @@ export const MONSTERS: Monster[] = [
   {
     id: "dragon",
     name: "Dragon",
-    sprite: "dragon",
+    sprite: { sheet: "monsters", row: 8, col: 2 },
     stats: { health: 160, attack: 22, defense: 16, magic: 26 },
     moves: [
       {

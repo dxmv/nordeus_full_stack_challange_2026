@@ -1,16 +1,18 @@
 import HealthBar from "./HealthBar";
+import Sprite from "./Sprite";
+import type { SpriteCoords } from "../../types";
 
 interface Props {
   label: string;
   hp: { current: number; max: number };
+  sprite: SpriteCoords;
 }
 
-export default function Combatant({ label, hp }: Props) {
+export default function Combatant({ label, hp, sprite }: Props) {
   return (
-    <div className="flex flex-col items-center gap-4 w-48">
-      <div className="w-32 h-32 bg-gray-700 border-2 border-dashed border-gray-500 rounded-xl flex items-center justify-center">
-        <span className="text-gray-400 font-bold text-xl tracking-widest">{label}</span>
-      </div>
+    <div className="flex flex-col items-center gap-4 w-40">
+      <span className="text-gray-400 text-sm font-semibold tracking-widest uppercase">{label}</span>
+      <Sprite sprite={sprite} scale={4} />
       <HealthBar current={hp.current} max={hp.max} />
     </div>
   );
