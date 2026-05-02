@@ -31,65 +31,69 @@ export default function MapScreen({ clearedCount, onFight, onBack }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center p-8 gap-10">
+    <div className="min-h-screen flex flex-col items-center p-8 gap-10">
       <div className="w-full flex items-center">
         <button
           onClick={onBack}
-          className="text-gray-400 hover:text-white text-sm tracking-widest uppercase transition-colors"
+          className="text-gray-400 hover:text-white transition-colors"
+          style={{ fontSize: 8 }}
         >
-          ← Menu
+          &lt; menu
         </button>
-        <span className="mx-auto text-gray-500 tracking-widest uppercase text-sm">
-          Run Overview
+        <span className="mx-auto text-gray-500" style={{ fontSize: 8 }}>
+          run overview
         </span>
         <div className="w-16" />
       </div>
 
       {/* Encounter map */}
-      <div className="flex gap-4">
+      <div className="flex gap-3">
         {monsters.map((monster, i) => {
           const cleared = i < clearedCount;
           const current = i === clearedCount;
           return (
             <div
               key={monster.id}
-              className={`flex flex-col items-center gap-3 p-4 bg-gray-800 rounded-xl w-36 border transition-colors ${
+              className={`flex flex-col items-center gap-3 p-3 bg-gray-800 w-32 border-2 ${
                 cleared
-                  ? "border-green-800"
+                  ? "border-green-700"
                   : current
-                  ? "border-yellow-600"
+                  ? "border-yellow-500"
                   : "border-gray-700 opacity-40"
               }`}
+              style={{ boxShadow: "4px 4px 0 #000" }}
             >
-              <span className="text-gray-500 text-[10px] tracking-widest uppercase">
+              <span className="text-gray-500" style={{ fontSize: 7 }}>
                 #{i + 1}
               </span>
               <Sprite sprite={monster.sprite} scale={2} />
-              <span className="text-white text-xs font-bold tracking-wide text-center leading-tight">
+              <span className="text-white text-center leading-relaxed" style={{ fontSize: 7 }}>
                 {monster.name}
               </span>
               {cleared ? (
                 <div className="flex flex-col items-center gap-1.5 w-full">
-                  <span className="text-green-400 text-[10px] font-bold tracking-widest uppercase">
-                    Cleared
+                  <span className="text-green-400" style={{ fontSize: 7 }}>
+                    cleared
                   </span>
                   <button
                     onClick={() => onFight(i)}
-                    className="w-full py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold text-[10px] tracking-widest uppercase rounded transition-colors"
+                    className="btn-pixel w-full py-1.5 bg-gray-700 text-gray-300 border-2 border-gray-600"
+                    style={{ fontSize: 7 }}
                   >
-                    Replay
+                    replay
                   </button>
                 </div>
               ) : current ? (
                 <button
                   onClick={() => onFight(i)}
-                  className="w-full py-1.5 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold text-xs tracking-widest uppercase rounded transition-colors"
+                  className="btn-pixel w-full py-1.5 bg-yellow-500 text-gray-900 font-bold border-2 border-yellow-700"
+                  style={{ fontSize: 7 }}
                 >
-                  Fight
+                  fight
                 </button>
               ) : (
-                <span className="text-gray-500 text-[10px] font-bold tracking-widest uppercase">
-                  Locked
+                <span className="text-gray-600" style={{ fontSize: 7 }}>
+                  locked
                 </span>
               )}
             </div>
@@ -101,8 +105,8 @@ export default function MapScreen({ clearedCount, onFight, onBack }: Props) {
       <div className="w-full max-w-3xl flex flex-col gap-8">
         {/* Equipped */}
         <div className="flex flex-col gap-3">
-          <span className="text-gray-400 text-xs tracking-widest uppercase">
-            Equipped — {player.equippedMoves.length} / {MAX_EQUIPPED}
+          <span className="text-gray-400" style={{ fontSize: 8 }}>
+            equipped — {player.equippedMoves.length} / {MAX_EQUIPPED}
           </span>
           <div className="grid grid-cols-4 gap-3">
             {player.equippedMoves.map((move) => (
@@ -110,9 +114,10 @@ export default function MapScreen({ clearedCount, onFight, onBack }: Props) {
                 <MoveCard move={move} onSelect={() => {}} disabled />
                 <button
                   onClick={() => unequipMove(move.id)}
-                  className="w-full py-1 text-[10px] font-bold tracking-widest uppercase text-red-400 hover:text-red-300 border border-red-800 hover:border-red-600 rounded transition-colors"
+                  className="btn-pixel w-full py-1 text-red-400 border-2 border-red-900 bg-gray-800"
+                  style={{ fontSize: 7 }}
                 >
-                  Unequip
+                  unequip
                 </button>
               </div>
             ))}
@@ -122,8 +127,8 @@ export default function MapScreen({ clearedCount, onFight, onBack }: Props) {
         {/* Move pool */}
         {player.learnedMoves.some((m) => !isEquipped(m)) && (
           <div className="flex flex-col gap-3">
-            <span className="text-gray-400 text-xs tracking-widest uppercase">
-              Move Pool
+            <span className="text-gray-400" style={{ fontSize: 8 }}>
+              move pool
             </span>
             <div className="grid grid-cols-4 gap-3">
               {player.learnedMoves
@@ -134,9 +139,10 @@ export default function MapScreen({ clearedCount, onFight, onBack }: Props) {
                     <button
                       onClick={() => toggleMove(move)}
                       disabled={player.equippedMoves.length >= MAX_EQUIPPED}
-                      className="w-full py-1 text-[10px] font-bold tracking-widest uppercase text-yellow-400 hover:text-yellow-300 border border-yellow-800 hover:border-yellow-600 rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="btn-pixel w-full py-1 text-yellow-400 border-2 border-yellow-900 bg-gray-800 disabled:opacity-40"
+                      style={{ fontSize: 7 }}
                     >
-                      Equip
+                      equip
                     </button>
                   </div>
                 ))}

@@ -9,7 +9,7 @@ interface Props {
 
 export default function MoveSelection({ moves, onSelect, disabled }: Props) {
   return (
-    <div className="w-full max-w-3xl grid grid-cols-4 gap-3 items-end">
+    <div className="w-full max-w-3xl grid grid-cols-4 gap-3 items-stretch">
       {moves.map((move) => (
         <MoveCard key={move.id} move={move} onSelect={onSelect} disabled={disabled} />
       ))}

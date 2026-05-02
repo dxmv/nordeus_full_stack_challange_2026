@@ -15,7 +15,7 @@ interface Props {
 export default function Combatant({ label, hp, sprite, flip, anim, animKey }: Props) {
   return (
     <div className="flex flex-col items-center gap-4 w-40">
-      <span className="text-gray-400 text-sm font-semibold tracking-widest uppercase">{label}</span>
+      <span className="text-gray-400 text-center leading-relaxed" style={{ fontSize: 8 }}>{label}</span>
       <div className="relative">
         <Sprite sprite={sprite} scale={4} flip={flip} />
         {anim && <MoveAnimation key={animKey} kind={anim} />}

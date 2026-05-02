@@ -1,4 +1,5 @@
 import { useContext, useEffect } from "react";
+import BattleLog from "../components/battle/BattleLog";
 import Combatant from "../components/battle/Combatant";
 import MoveSelection from "../components/battle/MoveSelection";
 import { RunConfigContext } from "../context/RunConfigContext";
@@ -43,7 +44,7 @@ export default function BattleScreen({ monsterIndex, onWin, onBack }: Props) {
   const { player, gainXp, learnMove } = usePlayer();
   const monster = context?.config?.monsters[monsterIndex];
 
-  const { battle, lastAction, takeTurn, reset } = useBattle(player.baseStats, monster!);
+  const { battle, lastAction, log, takeTurn, reset } = useBattle(player.baseStats, monster!);
 
   useEffect(() => {
     if (battle.phase === "won" && battle.wonMove) {
@@ -62,59 +63,72 @@ export default function BattleScreen({ monsterIndex, onWin, onBack }: Props) {
   const isOver = battle.phase === "won" || battle.phase === "lost";
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-between p-8">
+    <div className="min-h-screen flex flex-col items-center p-8 gap-8">
+      {/* Header */}
       <div className="w-full flex items-center">
         <button
           onClick={onBack}
-          className="text-gray-400 hover:text-white text-sm tracking-widest uppercase transition-colors"
+          className="text-gray-400 hover:text-white transition-colors"
+          style={{ fontSize: 8 }}
         >
-          ← Back
+          &lt; back
         </button>
-        <span className="mx-auto text-gray-500 tracking-widest uppercase text-sm">
-          Battle
+        <span className="mx-auto text-gray-500" style={{ fontSize: 8 }}>
+          battle
         </span>
         <div className="w-12" />
       </div>
 
-      <div className="relative flex items-center justify-center gap-24">
-        <Combatant label="Hero" hp={heroHp} sprite={HERO_SPRITE} flip anim={heroAnim} animKey={animKey} />
-        <span className="text-gray-600 text-2xl font-bold">VS</span>
+      {/* Combatants */}
+      <div className="flex items-center justify-center gap-24 flex-1">
+        <Combatant label="hero" hp={heroHp} sprite={HERO_SPRITE} flip anim={heroAnim} animKey={animKey} />
+        <span className="text-gray-600 font-bold" style={{ fontSize: 10 }}>vs</span>
         <Combatant label={monster.name} hp={monsterHp} sprite={monster.sprite} anim={monsterAnim} animKey={animKey} />
-
-        {isOver && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/80 rounded-xl gap-4">
-            <span className="text-3xl font-bold tracking-widest uppercase text-white">
-              {battle.phase === "won" ? "Victory!" : "Defeated"}
-            </span>
-            {battle.wonMove && (
-              <span className="text-yellow-400 text-sm tracking-widest uppercase">
-                Learned: {battle.wonMove.name}!
-              </span>
-            )}
-            {battle.phase === "won" ? (
-              <button
-                onClick={onWin}
-                className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold tracking-widest uppercase text-sm rounded transition-colors"
-              >
-                Continue
-              </button>
-            ) : (
-              <button
-                onClick={reset}
-                className="px-6 py-2 bg-gray-600 hover:bg-gray-500 text-white font-bold tracking-widest uppercase text-sm rounded transition-colors"
-              >
-                Try Again
-              </button>
-            )}
-          </div>
-        )}
       </div>
 
+      {/* Move selection */}
       <MoveSelection
         moves={player.equippedMoves}
         onSelect={(move) => takeTurn(move)}
         disabled={battle.phase !== "player_turn"}
       />
+
+      {/* Battle log — fixed upper right */}
+      <div className="fixed top-16 right-4 w-64 z-10">
+        <BattleLog entries={log} />
+      </div>
+
+      {/* Victory / defeat overlay — full screen */}
+      {isOver && (
+        <div className="fixed inset-0 z-20 flex flex-col items-center justify-center gap-8"
+          style={{ background: "rgba(13,13,26,0.96)" }}>
+          <span className="text-white text-xl leading-relaxed">
+            {battle.phase === "won" ? "victory!" : "defeated"}
+          </span>
+          {battle.wonMove && (
+            <span className="text-yellow-400 text-center leading-loose" style={{ fontSize: 8 }}>
+              learned:<br />{battle.wonMove.name}!
+            </span>
+          )}
+          {battle.phase === "won" ? (
+            <button
+              onClick={onWin}
+              className="btn-pixel px-8 py-3 bg-yellow-500 text-gray-900 font-bold border-2 border-yellow-700"
+              style={{ fontSize: 8 }}
+            >
+              continue
+            </button>
+          ) : (
+            <button
+              onClick={reset}
+              className="btn-pixel px-8 py-3 bg-gray-700 text-white font-bold border-2 border-gray-500"
+              style={{ fontSize: 8 }}
+            >
+              try again
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

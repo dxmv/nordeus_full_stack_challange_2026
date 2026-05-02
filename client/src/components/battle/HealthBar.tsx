@@ -1,21 +1,29 @@
+const SEGMENTS = 20;
+
 interface Props {
   current: number;
   max: number;
 }
 
 export default function HealthBar({ current, max }: Props) {
-  const pct = Math.max(0, (current / max) * 100);
+  const pct = Math.max(0, current / max);
+  const filled = Math.round(pct * SEGMENTS);
+  const color = pct > 0.5 ? "#22c55e" : pct > 0.25 ? "#eab308" : "#ef4444";
+
   return (
     <div className="w-full">
-      <div className="flex justify-between text-sm text-gray-400 mb-1">
+      <div className="flex justify-between text-gray-400 mb-1" style={{ fontSize: 7 }}>
         <span>HP</span>
-        <span>{current} / {max}</span>
+        <span>{current}/{max}</span>
       </div>
-      <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-green-500 rounded-full transition-all duration-300"
-          style={{ width: `${pct}%` }}
-        />
+      <div className="flex gap-[2px]">
+        {Array.from({ length: SEGMENTS }).map((_, i) => (
+          <div
+            key={i}
+            className="h-3 flex-1"
+            style={{ background: i < filled ? color : "#1f2937" }}
+          />
+        ))}
       </div>
     </div>
   );

@@ -1,1 +1,41 @@
 @import "tailwindcss";
+
+@layer base {
+  * {
+    font-family: 'Press Start 2P', monospace;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #0d0d1a;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+}
+
+/* Reusable pixel-art button — hard drop shadow that shifts on press */
+.btn-pixel {
+  box-shadow: 4px 4px 0 #000;
+  transition: filter 80ms;
+}
+.btn-pixel:hover:not(:disabled) {
+  filter: brightness(1.15);
+}
+.btn-pixel:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #000;
+}
+.btn-pixel:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Pixel panel — sharp border with hard shadow */
+.pixel-panel {
+  border: 2px solid #374151;
+  box-shadow: 4px 4px 0 #000;
+}

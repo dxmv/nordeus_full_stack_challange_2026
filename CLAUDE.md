@@ -52,6 +52,7 @@ All combat math lives here. Key functions:
 - `tickModifiers(modifiers)` — decrements `turnsLeft`, prunes expired entries
 - `takeTurn(playerMove)` — async; runs one full round: player acts → check win → fetch monster move (overlapped with a 500 ms animation pause via `Promise.all`) → monster acts → check loss → back to `player_turn`
 - `lastAction: LastAction` — `{ role: 'hero'|'monster', move, key }` set at the start of each actor's action, cleared 500 ms after it resolves; `BattleScreen` reads this to drive move animations
+- `log: LogEntry[]` — appended after every `resolveMove` call with the raw HP deltas; cleared on `reset()`; read by `BattleLog` to display the combat history
 - On win, `BattleState.wonMove` is set to a randomly picked move from the monster's moveset; `BattleScreen` picks this up via a `useEffect` to call `learnMove` + `gainXp(100)`
 
 **Damage formulas (additive, not multiplicative):**
@@ -73,6 +74,14 @@ Stat modifiers (buffs/debuffs) last 2 turns. `buff_*` effects add a positive del
 - `RunConfigContext` — fetched monster configs (loaded once on game start)
 - `PlayerContext` — hero stats, level, XP, learned/equipped moves; exposes `gainXp`, `learnMove`, `equipMove`, `unequipMove`
 - `useBattle` hook — owns all in-battle state (HP, modifiers, phase, wonMove)
+
+### Battle Log (`client/src/components/battle/BattleLog.tsx`)
+
+Fixed-height (`h-32`) scrollable panel rendered between the combatants and move selection in `BattleScreen`. Shows one row per action: actor label (Hero in yellow, Monster in red), move name, and a formatted outcome string derived from `LogEntry`. Auto-scrolls to the latest entry via a sentinel `<div>` and `useEffect` on `entries.length`. Shows "No actions yet" when empty.
+
+`formatOutcome` maps effects + raw HP deltas to readable strings:
+- `damage` → `−N dmg`, `heal` → `+N HP`, `drain` → `−N dmg, +N HP`, `self_damage` → `−N HP (self)`
+- `buff_*/debuff_*` → `+ATK / −DEF / +MAG` etc.
 
 ### Move Animations (`client/src/components/battle/MoveAnimation.tsx`)
 
@@ -99,6 +108,6 @@ Coordinates stored in `client/src/data/sprites.ts` (player) and on each `Monster
 ### Shared Types
 Both `server/src/types.ts` and `client/src/types.ts` define the domain model. Keep them in sync manually — there is no shared package.
 
-Key types: `Monster`, `Move`, `Stats`, `SpriteCoords`, `StatModifier`, `MoveResult`, `BattleState` (phase: `player_turn | monster_turn | won | lost`; `wonMove: Move | null` — set on win).
+Key types: `Monster`, `Move`, `Stats`, `SpriteCoords`, `StatModifier`, `MoveResult`, `BattleState` (phase: `player_turn | monster_turn | won | lost`; `wonMove: Move | null` — set on win), `LogEntry` (`role`, `moveName`, `effects`, `defenderHpDelta`, `attackerHpDelta`).
 
 Move effects: `damage | heal | drain | self_damage | buff_attack | buff_defense | buff_magic | debuff_attack | debuff_defense | debuff_magic`.

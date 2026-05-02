@@ -129,7 +129,7 @@ export function useBattle(heroBaseStats: Stats, monster: Monster) {
     const newHeroHp = clampHp(cur.heroCurrentHp + playerResult.attackerHpDelta, heroBaseStats.health);
     const newHeroMods = tickModifiers([...cur.heroModifiers, ...playerResult.attackerNewModifiers]);
     const newMonsterMods = tickModifiers([...cur.monsterModifiers, ...playerResult.defenderNewModifiers]);
-    appendLog("hero",playerMove,playerResult);
+    appendLog("hero", playerMove, playerResult);
 
     if (newMonsterHp <= 0) {
       const wonMove = monster.moves[Math.floor(Math.random() * monster.moves.length)];
@@ -157,7 +157,7 @@ export function useBattle(heroBaseStats: Stats, monster: Monster) {
 
     // Monster acts
     setLastAction({ role: "monster", move: monsterMove, key: ++actionKeyRef.current });
-    appendLog("hero",monsterMove,monsterResult);
+    appendLog("monster", monsterMove, monsterResult);
 
 
     if (finalHeroHp <= 0) {
@@ -175,8 +175,9 @@ export function useBattle(heroBaseStats: Stats, monster: Monster) {
 
   function reset() {
     setLastAction(null);
+    setLog([]);
     setBattle(initialState(heroBaseStats, monster));
   }
 
-  return { battle, lastAction, takeTurn, reset };
+  return { battle, lastAction, log, takeTurn, reset };
 }
