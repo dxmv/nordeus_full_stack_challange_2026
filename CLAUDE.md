@@ -49,6 +49,7 @@ All combat math lives here. Key functions:
 - `resolveMove(move, attackerStats, defenderStats)` — returns `MoveResult` (HP deltas + new modifier arrays)
 - `tickModifiers(modifiers)` — decrements `turnsLeft`, prunes expired entries
 - `takeTurn(playerMove)` — async; runs one full round: player acts → check win → fetch monster move → monster acts → check loss → back to `player_turn`
+- On win, `BattleState.wonMove` is set to a randomly picked move from the monster's moveset; `BattleScreen` picks this up via a `useEffect` to call `learnMove` + `gainXp(100)`
 
 **Damage formulas (additive, not multiplicative):**
 - Physical: `Math.max(0, attacker.attack + baseValue - defender.defense)`
@@ -61,7 +62,7 @@ Stat modifiers (buffs/debuffs) last 2 turns. `buff_*` effects add a positive del
 ### Client State
 - `RunConfigContext` — fetched monster configs (loaded once on game start)
 - `PlayerContext` — hero stats, level, XP, learned/equipped moves; exposes `gainXp`, `learnMove`, `equipMove`, `unequipMove`
-- `useBattle` hook — owns all in-battle state (HP, modifiers, phase)
+- `useBattle` hook — owns all in-battle state (HP, modifiers, phase, wonMove)
 
 ### Sprites
 Sprites are 32×32 px tiles rendered via `Sprite.tsx`, scaled 4× (128×128) in the UI.
@@ -73,6 +74,6 @@ Coordinates stored in `client/src/data/sprites.ts` (player) and on each `Monster
 ### Shared Types
 Both `server/src/types.ts` and `client/src/types.ts` define the domain model. Keep them in sync manually — there is no shared package.
 
-Key types: `Monster`, `Move`, `Stats`, `SpriteCoords`, `StatModifier`, `MoveResult`, `BattleState` (phase: `player_turn | monster_turn | won | lost`).
+Key types: `Monster`, `Move`, `Stats`, `SpriteCoords`, `StatModifier`, `MoveResult`, `BattleState` (phase: `player_turn | monster_turn | won | lost`; `wonMove: Move | null` — set on win).
 
 Move effects: `damage | heal | drain | buff_attack | buff_defense | buff_magic | debuff_attack | debuff_defense | debuff_magic`.

@@ -7,13 +7,14 @@ import { useBattle } from "../hooks/useBattle";
 import { HERO_SPRITE } from "../data/sprites";
 
 interface Props {
+  monsterIndex: number;
   onBack: () => void;
 }
 
-export default function BattleScreen({ onBack }: Props) {
+export default function BattleScreen({ monsterIndex, onBack }: Props) {
   const context = useContext(RunConfigContext);
   const { player, gainXp, learnMove } = usePlayer();
-  const monster = context?.config?.monsters[0];
+  const monster = context?.config?.monsters[monsterIndex];
 
   if (!monster) return null;
 
