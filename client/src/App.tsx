@@ -22,13 +22,15 @@ export default function App() {
   };
 
   const handleWin = () => {
-    const next = clearedCount + 1;
-    setClearedCount(next);
-    if (next >= 5) {
-      setScreen("run-complete");
-    } else {
-      setScreen("map");
+    if (monsterIndex === clearedCount) {
+      const next = clearedCount + 1;
+      setClearedCount(next);
+      if (next >= 5) {
+        setScreen("run-complete");
+        return;
+      }
     }
+    setScreen("map");
   };
 
   if (screen === "map") {

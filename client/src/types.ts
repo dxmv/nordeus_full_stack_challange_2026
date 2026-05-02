@@ -4,6 +4,7 @@ export type EffectKind =
   | "damage"
   | "heal"
   | "drain"
+  | "self_damage"
   | "buff_attack"
   | "buff_defense"
   | "buff_magic"

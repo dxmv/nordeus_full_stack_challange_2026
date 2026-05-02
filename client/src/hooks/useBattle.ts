@@ -36,6 +36,8 @@ function resolveMove(
       defenderHpDelta -= dmg;
     } else if (effect === "heal") {
       attackerHpDelta += attackerStats.magic + move.baseValue;
+    } else if (effect === "self_damage") {
+      attackerHpDelta -= move.baseValue;
     } else if (effect === "drain") {
       const dmg =
         move.type === "physical"

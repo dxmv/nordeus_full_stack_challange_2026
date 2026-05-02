@@ -69,9 +69,17 @@ export default function MapScreen({ clearedCount, onFight, onBack }: Props) {
                 {monster.name}
               </span>
               {cleared ? (
-                <span className="text-green-400 text-[10px] font-bold tracking-widest uppercase">
-                  Cleared
-                </span>
+                <div className="flex flex-col items-center gap-1.5 w-full">
+                  <span className="text-green-400 text-[10px] font-bold tracking-widest uppercase">
+                    Cleared
+                  </span>
+                  <button
+                    onClick={() => onFight(i)}
+                    className="w-full py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold text-[10px] tracking-widest uppercase rounded transition-colors"
+                  >
+                    Replay
+                  </button>
+                </div>
               ) : current ? (
                 <button
                   onClick={() => onFight(i)}

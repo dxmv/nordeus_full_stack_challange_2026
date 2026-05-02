@@ -50,7 +50,8 @@ All combat math lives here. Key functions:
 - `applyModifiers(base, modifiers)` — sums active buff/debuff deltas onto base stats
 - `resolveMove(move, attackerStats, defenderStats)` — returns `MoveResult` (HP deltas + new modifier arrays)
 - `tickModifiers(modifiers)` — decrements `turnsLeft`, prunes expired entries
-- `takeTurn(playerMove)` — async; runs one full round: player acts → check win → fetch monster move → monster acts → check loss → back to `player_turn`
+- `takeTurn(playerMove)` — async; runs one full round: player acts → check win → fetch monster move (overlapped with a 500 ms animation pause via `Promise.all`) → monster acts → check loss → back to `player_turn`
+- `lastAction: LastAction` — `{ role: 'hero'|'monster', move, key }` set at the start of each actor's action, cleared 500 ms after it resolves; `BattleScreen` reads this to drive move animations
 - On win, `BattleState.wonMove` is set to a randomly picked move from the monster's moveset; `BattleScreen` picks this up via a `useEffect` to call `learnMove` + `gainXp(100)`
 
 **Damage formulas (additive, not multiplicative):**
@@ -71,6 +72,21 @@ Stat modifiers (buffs/debuffs) last 2 turns. `buff_*` effects add a positive del
 - `RunConfigContext` — fetched monster configs (loaded once on game start)
 - `PlayerContext` — hero stats, level, XP, learned/equipped moves; exposes `gainXp`, `learnMove`, `equipMove`, `unequipMove`
 - `useBattle` hook — owns all in-battle state (HP, modifiers, phase, wonMove)
+
+### Move Animations (`client/src/components/battle/MoveAnimation.tsx`)
+
+`MoveAnimation` renders a CSS-only overlay absolutely positioned over a combatant sprite. `AnimKind` maps to:
+
+| Kind | Trigger condition | Visual |
+|---|---|---|
+| `slash` | physical `damage` on target | 3 staggered red diagonal lines |
+| `magic` | magic `damage` on target | purple orb burst + sparkle particles |
+| `heal` | `heal` or `drain` on caster | green `+` signs floating up |
+| `drain` | `drain` on target | purple orbs rising up |
+| `buff` | `buff_*` on caster | gold `↑` arrows rising |
+| `debuff` | `debuff_*` on target | red `↓` arrows falling |
+
+`BattleScreen` derives which `AnimKind` to show on each `Combatant` from `useBattle`'s `lastAction`. The `key` field on `lastAction` increments each action so React remounts `MoveAnimation` and CSS animations replay from the start. Priority when a move has multiple effects: drain > damage > heal > buff > debuff.
 
 ### Sprites
 Sprites are 32×32 px tiles rendered via `Sprite.tsx`, scaled 4× (128×128) in the UI.
