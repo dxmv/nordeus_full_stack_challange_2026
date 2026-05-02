@@ -1,6 +1,6 @@
 ## Demo video
 
-<video src="demo.mov" controls width="800"></video>
+[▶ Watch demo](demo.mov)
 
 ## Project Overview
 
