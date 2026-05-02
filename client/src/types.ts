@@ -68,6 +68,15 @@ export interface MoveResult {
   defenderNewModifiers: StatModifier[];
 }
 
+export interface LogEntry {
+  key: number;
+  role: "hero" | "monster";
+  moveName: string;
+  effects: EffectKind[];
+  defenderHpDelta: number;
+  attackerHpDelta: number;
+}
+
 export interface PlayerState {
   level: number;
   xp: number;

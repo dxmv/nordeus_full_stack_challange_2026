@@ -31,7 +31,7 @@ npm run preview  # preview production build
 3. Server returns `RunConfig` (5 monsters hardcoded in `server/src/data/monsters.ts`)
 4. `App.tsx` routes between `MainMenu`, `MapScreen`, `BattleScreen`, and `RunCompleteScreen`; tracks `monsterIndex` (0–4) and `clearedCount` (0–5)
 5. Player selects the current encounter on the map → `BattleScreen` receives `monsterIndex`; encounters before `clearedCount` show "Cleared", after show "Locked"
-6. Win → `onWin` increments `clearedCount`; at 5 → `RunCompleteScreen`; otherwise back to map. Loss → "Try Again" resets the battle, no progression change
+6. Win → `onWin` advances `clearedCount` only if `monsterIndex === clearedCount` (first-time clear); at 5 → `RunCompleteScreen`; otherwise back to map. Cleared encounters show a "Replay" button — replays still award XP and moves but don't re-advance `clearedCount`. Loss → "Try Again" resets the battle, no progression change
 7. Player picks a move → `useBattle.takeTurn(move)` runs the full round client-side, then calls `GET /api/monster-move` for the monster's response
 
 ### Server Endpoints
@@ -59,6 +59,7 @@ All combat math lives here. Key functions:
 - Magic: `attacker.magic + baseValue` (bypasses defense)
 - Heal: `caster.magic + baseValue` restored to caster
 - Drain: deals magic damage and heals caster for the same amount
+- Self-damage: `baseValue` flat HP loss to the caster (used by Dark Pact — no stat scaling)
 
 Stat modifiers (buffs/debuffs) last 2 turns. `buff_*` effects add a positive delta to the caster's modifier list; `debuff_*` add a negative delta to the target's.
 
@@ -100,4 +101,4 @@ Both `server/src/types.ts` and `client/src/types.ts` define the domain model. Ke
 
 Key types: `Monster`, `Move`, `Stats`, `SpriteCoords`, `StatModifier`, `MoveResult`, `BattleState` (phase: `player_turn | monster_turn | won | lost`; `wonMove: Move | null` — set on win).
 
-Move effects: `damage | heal | drain | buff_attack | buff_defense | buff_magic | debuff_attack | debuff_defense | debuff_magic`.
+Move effects: `damage | heal | drain | self_damage | buff_attack | buff_defense | buff_magic | debuff_attack | debuff_defense | debuff_magic`.

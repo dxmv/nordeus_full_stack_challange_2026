@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import type { BattleState, Monster, Move, MoveResult, StatModifier, Stats } from "../types";
+import type { BattleState, LogEntry, Monster, Move, MoveResult, StatModifier, Stats } from "../types";
 
 export type LastAction = { role: "hero" | "monster"; move: Move; key: number } | null;
 
@@ -98,10 +98,22 @@ export function useBattle(heroBaseStats: Stats, monster: Monster) {
     initialState(heroBaseStats, monster)
   );
   const [lastAction, setLastAction] = useState<LastAction>(null);
+  const [log, setLog] = useState<LogEntry[]>([]);
   const battleRef = useRef(battle);
   const actionKeyRef = useRef(0);
   // eslint-disable-next-line react-hooks/refs
   battleRef.current = battle;
+
+  function appendLog(role: "hero" | "monster", move: Move, result: MoveResult) {
+    setLog((prev) => [...prev, {
+      key: actionKeyRef.current,
+      role,
+      moveName: move.name,
+      effects: move.effects,
+      defenderHpDelta: result.defenderHpDelta,
+      attackerHpDelta: result.attackerHpDelta,
+    }]);
+  }
 
   async function takeTurn(playerMove: Move) {
     const cur = battleRef.current;
@@ -117,6 +129,7 @@ export function useBattle(heroBaseStats: Stats, monster: Monster) {
     const newHeroHp = clampHp(cur.heroCurrentHp + playerResult.attackerHpDelta, heroBaseStats.health);
     const newHeroMods = tickModifiers([...cur.heroModifiers, ...playerResult.attackerNewModifiers]);
     const newMonsterMods = tickModifiers([...cur.monsterModifiers, ...playerResult.defenderNewModifiers]);
+    appendLog("hero",playerMove,playerResult);
 
     if (newMonsterHp <= 0) {
       const wonMove = monster.moves[Math.floor(Math.random() * monster.moves.length)];
@@ -144,6 +157,8 @@ export function useBattle(heroBaseStats: Stats, monster: Monster) {
 
     // Monster acts
     setLastAction({ role: "monster", move: monsterMove, key: ++actionKeyRef.current });
+    appendLog("hero",monsterMove,monsterResult);
+
 
     if (finalHeroHp <= 0) {
       setBattle({ heroCurrentHp: 0, monsterCurrentHp: finalMonsterHp, heroModifiers: finalHeroMods, monsterModifiers: finalMonsterMods, phase: "lost", wonMove: null });
