@@ -1,6 +1,6 @@
 ## Demo video
 
-[▶ Watch demo](demo.mov)
+[![Demo](thumb.png)](https://drive.google.com/file/d/1yneusmzeI1m0zAI7F9y4Qz5Zk8VuMpw6/view?usp=sharing)
 
 ## Project Overview
 
