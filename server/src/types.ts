@@ -44,3 +44,9 @@ export interface Monster {
 export interface RunConfig {
   monsters: Monster[];
 }
+
+export interface StatModifier {
+  stat: "attack" | "defense" | "magic";
+  delta: number;
+  turnsLeft: number;
+}

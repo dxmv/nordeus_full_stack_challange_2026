@@ -17,10 +17,11 @@ export default function BattleScreen({ onBack }: Props) {
 
   if (!monster) return null;
 
-  const { battle } = useBattle(player.baseStats, monster);
+  const { battle, takeTurn, reset } = useBattle(player.baseStats, monster);
 
-  const heroHp   = { current: battle.heroCurrentHp,    max: player.baseStats.health };
+  const heroHp = { current: battle.heroCurrentHp, max: player.baseStats.health };
   const monsterHp = { current: battle.monsterCurrentHp, max: monster.stats.health };
+  const isOver = battle.phase === "won" || battle.phase === "lost";
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-between p-8">
@@ -37,15 +38,29 @@ export default function BattleScreen({ onBack }: Props) {
         <div className="w-12" />
       </div>
 
-      <div className="flex items-center justify-center gap-24">
+      <div className="relative flex items-center justify-center gap-24">
         <Combatant label="Hero" hp={heroHp} sprite={HERO_SPRITE} />
         <span className="text-gray-600 text-2xl font-bold">VS</span>
         <Combatant label={monster.name} hp={monsterHp} sprite={monster.sprite} />
+
+        {isOver && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/80 rounded-xl gap-4">
+            <span className="text-3xl font-bold tracking-widest uppercase text-white">
+              {battle.phase === "won" ? "Victory!" : "Defeated"}
+            </span>
+            <button
+              onClick={reset}
+              className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold tracking-widest uppercase text-sm rounded transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
       </div>
 
       <MoveSelection
         moves={player.equippedMoves}
-        onSelect={(move) => console.log("selected", move.id)}
+        onSelect={(move) => takeTurn(move)}
         disabled={battle.phase !== "player_turn"}
       />
     </div>

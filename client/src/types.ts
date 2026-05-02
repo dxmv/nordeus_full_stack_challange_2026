@@ -59,6 +59,13 @@ export interface BattleState {
   phase: "player_turn" | "monster_turn" | "won" | "lost";
 }
 
+export interface MoveResult {
+  attackerHpDelta: number;
+  defenderHpDelta: number;
+  attackerNewModifiers: StatModifier[];
+  defenderNewModifiers: StatModifier[];
+}
+
 export interface PlayerState {
   level: number;
   xp: number;
