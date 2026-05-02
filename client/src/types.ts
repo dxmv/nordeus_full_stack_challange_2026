@@ -57,6 +57,7 @@ export interface BattleState {
   heroModifiers: StatModifier[];
   monsterModifiers: StatModifier[];
   phase: "player_turn" | "monster_turn" | "won" | "lost";
+  wonMove: Move | null;
 }
 
 export interface MoveResult {

@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import Combatant from "../components/battle/Combatant";
 import MoveSelection from "../components/battle/MoveSelection";
 import { RunConfigContext } from "../context/RunConfigContext";
@@ -12,12 +12,19 @@ interface Props {
 
 export default function BattleScreen({ onBack }: Props) {
   const context = useContext(RunConfigContext);
-  const { player } = usePlayer();
+  const { player, gainXp, learnMove } = usePlayer();
   const monster = context?.config?.monsters[0];
 
   if (!monster) return null;
 
   const { battle, takeTurn, reset } = useBattle(player.baseStats, monster);
+
+  useEffect(() => {
+    if (battle.phase === "won" && battle.wonMove) {
+      learnMove(battle.wonMove);
+      gainXp(100);
+    }
+  }, [battle.phase]);
 
   const heroHp = { current: battle.heroCurrentHp, max: player.baseStats.health };
   const monsterHp = { current: battle.monsterCurrentHp, max: monster.stats.health };
@@ -48,6 +55,11 @@ export default function BattleScreen({ onBack }: Props) {
             <span className="text-3xl font-bold tracking-widest uppercase text-white">
               {battle.phase === "won" ? "Victory!" : "Defeated"}
             </span>
+            {battle.wonMove && (
+              <span className="text-yellow-400 text-sm tracking-widest uppercase">
+                Learned: {battle.wonMove.name}!
+              </span>
+            )}
             <button
               onClick={reset}
               className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold tracking-widest uppercase text-sm rounded transition-colors"

@@ -81,6 +81,7 @@ function initialState(heroStats: Stats, monster: Monster): BattleState {
     heroModifiers: [],
     monsterModifiers: [],
     phase: "player_turn",
+    wonMove: null,
   };
 }
 
@@ -106,7 +107,8 @@ export function useBattle(heroBaseStats: Stats, monster: Monster) {
     const newMonsterMods = tickModifiers([...cur.monsterModifiers, ...playerResult.defenderNewModifiers]);
 
     if (newMonsterHp <= 0) {
-      setBattle({ heroCurrentHp: newHeroHp, monsterCurrentHp: 0, heroModifiers: newHeroMods, monsterModifiers: newMonsterMods, phase: "won" });
+      const wonMove = monster.moves[Math.floor(Math.random() * monster.moves.length)];
+      setBattle({ heroCurrentHp: newHeroHp, monsterCurrentHp: 0, heroModifiers: newHeroMods, monsterModifiers: newMonsterMods, phase: "won", wonMove });
       return;
     }
 
