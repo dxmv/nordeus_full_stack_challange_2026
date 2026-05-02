@@ -3,8 +3,10 @@ import Combatant from "../components/battle/Combatant";
 import MoveSelection from "../components/battle/MoveSelection";
 import { RunConfigContext } from "../context/RunConfigContext";
 import { usePlayer } from "../context/PlayerContext";
-import { useBattle } from "../hooks/useBattle";
+import { useBattle, type LastAction } from "../hooks/useBattle";
 import { HERO_SPRITE } from "../data/sprites";
+import type { AnimKind } from "../components/battle/MoveAnimation";
+import type { EffectKind, MoveType } from "../types";
 
 interface Props {
   monsterIndex: number;
@@ -12,14 +14,36 @@ interface Props {
   onBack: () => void;
 }
 
+function pickAnim(effects: EffectKind[], moveType: MoveType, side: "attacker" | "defender"): AnimKind | null {
+  if (side === "attacker") {
+    if (effects.includes("drain")) return "heal";
+    if (effects.includes("heal")) return "heal";
+    if (effects.some((e) => e.startsWith("buff_"))) return "buff";
+    return null;
+  } else {
+    if (effects.includes("drain")) return "drain";
+    if (effects.includes("damage")) return moveType === "physical" ? "slash" : "magic";
+    if (effects.some((e) => e.startsWith("debuff_"))) return "debuff";
+    return null;
+  }
+}
+
+function deriveAnims(lastAction: LastAction): { heroAnim: AnimKind | null; monsterAnim: AnimKind | null } {
+  if (!lastAction) return { heroAnim: null, monsterAnim: null };
+  const { role, move } = lastAction;
+  const attackerAnim = pickAnim(move.effects, move.type, "attacker");
+  const defenderAnim = pickAnim(move.effects, move.type, "defender");
+  return role === "hero"
+    ? { heroAnim: attackerAnim, monsterAnim: defenderAnim }
+    : { heroAnim: defenderAnim, monsterAnim: attackerAnim };
+}
+
 export default function BattleScreen({ monsterIndex, onWin, onBack }: Props) {
   const context = useContext(RunConfigContext);
   const { player, gainXp, learnMove } = usePlayer();
   const monster = context?.config?.monsters[monsterIndex];
 
-  if (!monster) return null;
-
-  const { battle, takeTurn, reset } = useBattle(player.baseStats, monster);
+  const { battle, lastAction, takeTurn, reset } = useBattle(player.baseStats, monster!);
 
   useEffect(() => {
     if (battle.phase === "won" && battle.wonMove) {
@@ -27,6 +51,11 @@ export default function BattleScreen({ monsterIndex, onWin, onBack }: Props) {
       gainXp(100);
     }
   }, [battle.phase]);
+
+  if (!monster) return null;
+
+  const { heroAnim, monsterAnim } = deriveAnims(lastAction);
+  const animKey = lastAction?.key ?? 0;
 
   const heroHp = { current: battle.heroCurrentHp, max: player.baseStats.health };
   const monsterHp = { current: battle.monsterCurrentHp, max: monster.stats.health };
@@ -48,9 +77,9 @@ export default function BattleScreen({ monsterIndex, onWin, onBack }: Props) {
       </div>
 
       <div className="relative flex items-center justify-center gap-24">
-        <Combatant label="Hero" hp={heroHp} sprite={HERO_SPRITE} />
+        <Combatant label="Hero" hp={heroHp} sprite={HERO_SPRITE} flip anim={heroAnim} animKey={animKey} />
         <span className="text-gray-600 text-2xl font-bold">VS</span>
-        <Combatant label={monster.name} hp={monsterHp} sprite={monster.sprite} />
+        <Combatant label={monster.name} hp={monsterHp} sprite={monster.sprite} anim={monsterAnim} animKey={animKey} />
 
         {isOver && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/80 rounded-xl gap-4">

@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
 import type { BattleState, Monster, Move, MoveResult, StatModifier, Stats } from "../types";
 
+export type LastAction = { role: "hero" | "monster"; move: Move; key: number } | null;
+
 function applyModifiers(base: Stats, modifiers: StatModifier[]): Stats {
   const result = { ...base };
   for (const mod of modifiers) {
@@ -85,11 +87,18 @@ function initialState(heroStats: Stats, monster: Monster): BattleState {
   };
 }
 
+const delay = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+const ANIM_DURATION = 500;
+
 export function useBattle(heroBaseStats: Stats, monster: Monster) {
   const [battle, setBattle] = useState<BattleState>(() =>
     initialState(heroBaseStats, monster)
   );
+  const [lastAction, setLastAction] = useState<LastAction>(null);
   const battleRef = useRef(battle);
+  const actionKeyRef = useRef(0);
+  // eslint-disable-next-line react-hooks/refs
   battleRef.current = battle;
 
   async function takeTurn(playerMove: Move) {
@@ -100,6 +109,7 @@ export function useBattle(heroBaseStats: Stats, monster: Monster) {
     const monsterEff = applyModifiers(monster.stats, cur.monsterModifiers);
 
     // Player acts
+    setLastAction({ role: "hero", move: playerMove, key: ++actionKeyRef.current });
     const playerResult = resolveMove(playerMove, heroEff, monsterEff);
     const newMonsterHp = clampHp(cur.monsterCurrentHp + playerResult.defenderHpDelta, monster.stats.health);
     const newHeroHp = clampHp(cur.heroCurrentHp + playerResult.attackerHpDelta, heroBaseStats.health);
@@ -109,20 +119,17 @@ export function useBattle(heroBaseStats: Stats, monster: Monster) {
     if (newMonsterHp <= 0) {
       const wonMove = monster.moves[Math.floor(Math.random() * monster.moves.length)];
       setBattle({ heroCurrentHp: newHeroHp, monsterCurrentHp: 0, heroModifiers: newHeroMods, monsterModifiers: newMonsterMods, phase: "won", wonMove });
+      setLastAction(null);
       return;
     }
 
-    const afterPlayerState: BattleState = {
-      heroCurrentHp: newHeroHp,
-      monsterCurrentHp: newMonsterHp,
-      heroModifiers: newHeroMods,
-      monsterModifiers: newMonsterMods,
-      phase: "monster_turn",
-    };
-    setBattle(afterPlayerState);
+    setBattle({ heroCurrentHp: newHeroHp, monsterCurrentHp: newMonsterHp, heroModifiers: newHeroMods, monsterModifiers: newMonsterMods, phase: "monster_turn", wonMove: null });
 
-    // Monster acts
-    const monsterMove = await fetchMonsterMove(monster.id, newMonsterHp, newHeroHp, newMonsterMods);
+    // Fetch monster move while player animation plays
+    const [monsterMove] = await Promise.all([
+      fetchMonsterMove(monster.id, newMonsterHp, newHeroHp, newMonsterMods),
+      delay(ANIM_DURATION),
+    ]);
 
     const monsterEff2 = applyModifiers(monster.stats, newMonsterMods);
     const heroEff2 = applyModifiers(heroBaseStats, newHeroMods);
@@ -133,17 +140,26 @@ export function useBattle(heroBaseStats: Stats, monster: Monster) {
     const finalHeroMods = tickModifiers([...newHeroMods, ...monsterResult.defenderNewModifiers]);
     const finalMonsterMods = tickModifiers([...newMonsterMods, ...monsterResult.attackerNewModifiers]);
 
+    // Monster acts
+    setLastAction({ role: "monster", move: monsterMove, key: ++actionKeyRef.current });
+
     if (finalHeroHp <= 0) {
-      setBattle({ heroCurrentHp: 0, monsterCurrentHp: finalMonsterHp, heroModifiers: finalHeroMods, monsterModifiers: finalMonsterMods, phase: "lost" });
+      setBattle({ heroCurrentHp: 0, monsterCurrentHp: finalMonsterHp, heroModifiers: finalHeroMods, monsterModifiers: finalMonsterMods, phase: "lost", wonMove: null });
+      await delay(ANIM_DURATION);
+      setLastAction(null);
       return;
     }
 
-    setBattle({ heroCurrentHp: finalHeroHp, monsterCurrentHp: finalMonsterHp, heroModifiers: finalHeroMods, monsterModifiers: finalMonsterMods, phase: "player_turn" });
+    setBattle({ heroCurrentHp: finalHeroHp, monsterCurrentHp: finalMonsterHp, heroModifiers: finalHeroMods, monsterModifiers: finalMonsterMods, phase: "monster_turn", wonMove: null });
+    await delay(ANIM_DURATION);
+    setLastAction(null);
+    setBattle({ heroCurrentHp: finalHeroHp, monsterCurrentHp: finalMonsterHp, heroModifiers: finalHeroMods, monsterModifiers: finalMonsterMods, phase: "player_turn", wonMove: null });
   }
 
   function reset() {
+    setLastAction(null);
     setBattle(initialState(heroBaseStats, monster));
   }
 
-  return { battle, takeTurn, reset };
+  return { battle, lastAction, takeTurn, reset };
 }

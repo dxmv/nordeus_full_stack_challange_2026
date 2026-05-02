@@ -15,14 +15,14 @@ const TILE = 32;
 interface Props {
   sprite: SpriteCoords;
   scale?: number;
+  flip?: boolean;
 }
 
-export default function Sprite({ sprite, scale = 4 }: Props) {
+export default function Sprite({ sprite, scale = 4, flip = false }: Props) {
   const { sheet, row, col } = sprite;
   const size = TILE * scale;
   const sheetCols = SHEET_COLS[sheet];
   const sheetWidth  = sheetCols * TILE * scale;
-  // derive sheet rows from the known total cols; height is computed from bgSize
   const bgX = -(col * size);
   const bgY = -(row * size);
 
@@ -36,6 +36,7 @@ export default function Sprite({ sprite, scale = 4 }: Props) {
         backgroundPosition: `${bgX}px ${bgY}px`,
         backgroundRepeat: "no-repeat",
         imageRendering: "pixelated",
+        transform: flip ? "scaleX(-1)" : undefined,
       }}
     />
   );
