@@ -9,21 +9,6 @@ interface Props {
 export default function MainMenu({ onStartGame, error, loading, hasSave, onContinue }: Props) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-12">
-      {/* Title */}
-      <div className="flex flex-col items-center gap-4">
-        <div className="pixel-panel bg-gray-800 px-8 py-6">
-          <span className="text-yellow-400 text-base leading-relaxed tracking-wide">
-            RPG
-          </span>
-          <br />
-          <span className="text-yellow-400 text-base leading-relaxed tracking-wide">
-            GAUNTLET
-          </span>
-        </div>
-        <span className="text-gray-500" style={{ fontSize: 8 }}>
-          defeat 5 monsters to win
-        </span>
-      </div>
 
       <div className="flex flex-col gap-4 w-56">
         {hasSave && onContinue && (
