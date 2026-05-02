@@ -8,10 +8,11 @@ import { HERO_SPRITE } from "../data/sprites";
 
 interface Props {
   monsterIndex: number;
+  onWin: () => void;
   onBack: () => void;
 }
 
-export default function BattleScreen({ monsterIndex, onBack }: Props) {
+export default function BattleScreen({ monsterIndex, onWin, onBack }: Props) {
   const context = useContext(RunConfigContext);
   const { player, gainXp, learnMove } = usePlayer();
   const monster = context?.config?.monsters[monsterIndex];
@@ -61,12 +62,21 @@ export default function BattleScreen({ monsterIndex, onBack }: Props) {
                 Learned: {battle.wonMove.name}!
               </span>
             )}
-            <button
-              onClick={reset}
-              className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold tracking-widest uppercase text-sm rounded transition-colors"
-            >
-              Try Again
-            </button>
+            {battle.phase === "won" ? (
+              <button
+                onClick={onWin}
+                className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold tracking-widest uppercase text-sm rounded transition-colors"
+              >
+                Continue
+              </button>
+            ) : (
+              <button
+                onClick={reset}
+                className="px-6 py-2 bg-gray-600 hover:bg-gray-500 text-white font-bold tracking-widest uppercase text-sm rounded transition-colors"
+              >
+                Try Again
+              </button>
+            )}
           </div>
         )}
       </div>

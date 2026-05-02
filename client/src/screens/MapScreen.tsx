@@ -8,11 +8,12 @@ import type { Move } from "../types";
 const MAX_EQUIPPED = 4;
 
 interface Props {
+  clearedCount: number;
   onFight: (monsterIndex: number) => void;
   onBack: () => void;
 }
 
-export default function MapScreen({ onFight, onBack }: Props) {
+export default function MapScreen({ clearedCount, onFight, onBack }: Props) {
   const context = useContext(RunConfigContext);
   const { player, equipMove, unequipMove } = usePlayer();
   const monsters = context?.config?.monsters ?? [];
@@ -46,26 +47,46 @@ export default function MapScreen({ onFight, onBack }: Props) {
 
       {/* Encounter map */}
       <div className="flex gap-4">
-        {monsters.map((monster, i) => (
-          <div
-            key={monster.id}
-            className="flex flex-col items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-xl w-36"
-          >
-            <span className="text-gray-500 text-[10px] tracking-widest uppercase">
-              #{i + 1}
-            </span>
-            <Sprite sprite={monster.sprite} scale={2} />
-            <span className="text-white text-xs font-bold tracking-wide text-center leading-tight">
-              {monster.name}
-            </span>
-            <button
-              onClick={() => onFight(i)}
-              className="w-full py-1.5 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold text-xs tracking-widest uppercase rounded transition-colors"
+        {monsters.map((monster, i) => {
+          const cleared = i < clearedCount;
+          const current = i === clearedCount;
+          return (
+            <div
+              key={monster.id}
+              className={`flex flex-col items-center gap-3 p-4 bg-gray-800 rounded-xl w-36 border transition-colors ${
+                cleared
+                  ? "border-green-800"
+                  : current
+                  ? "border-yellow-600"
+                  : "border-gray-700 opacity-40"
+              }`}
             >
-              Fight
-            </button>
-          </div>
-        ))}
+              <span className="text-gray-500 text-[10px] tracking-widest uppercase">
+                #{i + 1}
+              </span>
+              <Sprite sprite={monster.sprite} scale={2} />
+              <span className="text-white text-xs font-bold tracking-wide text-center leading-tight">
+                {monster.name}
+              </span>
+              {cleared ? (
+                <span className="text-green-400 text-[10px] font-bold tracking-widest uppercase">
+                  Cleared
+                </span>
+              ) : current ? (
+                <button
+                  onClick={() => onFight(i)}
+                  className="w-full py-1.5 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold text-xs tracking-widest uppercase rounded transition-colors"
+                >
+                  Fight
+                </button>
+              ) : (
+                <span className="text-gray-500 text-[10px] font-bold tracking-widest uppercase">
+                  Locked
+                </span>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Move management */}

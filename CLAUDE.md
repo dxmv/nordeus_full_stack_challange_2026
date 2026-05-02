@@ -29,8 +29,9 @@ npm run preview  # preview production build
 1. React app boots with `RunConfigContext` and `PlayerContext` wrapping the tree
 2. Player hits Start → `fetchConfig()` calls `GET /api/run-config`
 3. Server returns `RunConfig` (5 monsters hardcoded in `server/src/data/monsters.ts`)
-4. `App.tsx` routes between `MainMenu` and `BattleScreen`
-5. Player picks a move → `useBattle.takeTurn(move)` runs the full round client-side, then calls `GET /api/monster-move` for the monster's response
+4. `App.tsx` routes between `MainMenu`, `MapScreen`, and `BattleScreen`; tracks `monsterIndex` (0–4) for which encounter is active
+5. Player selects an encounter on the map → `BattleScreen` receives `monsterIndex` and fights `monsters[monsterIndex]`
+6. Player picks a move → `useBattle.takeTurn(move)` runs the full round client-side, then calls `GET /api/monster-move` for the monster's response
 
 ### Server Endpoints
 
@@ -58,6 +59,11 @@ All combat math lives here. Key functions:
 - Drain: deals magic damage and heals caster for the same amount
 
 Stat modifiers (buffs/debuffs) last 2 turns. `buff_*` effects add a positive delta to the caster's modifier list; `debuff_*` add a negative delta to the target's.
+
+### Screens
+- `MainMenu` — start button; triggers `fetchConfig()` then navigates to `MapScreen`
+- `MapScreen` — shows all 5 encounters as cards (sprite + name + Fight button); move management below (Equipped section with Unequip buttons, Move Pool with Equip buttons, max 4 equipped)
+- `BattleScreen` — takes `monsterIndex` prop; back button returns to `MapScreen`
 
 ### Client State
 - `RunConfigContext` — fetched monster configs (loaded once on game start)
