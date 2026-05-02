@@ -41,7 +41,7 @@ function deriveAnims(lastAction: LastAction): { heroAnim: AnimKind | null; monst
 
 export default function BattleScreen({ monsterIndex, onWin, onBack }: Props) {
   const context = useContext(RunConfigContext);
-  const { player, gainXp, learnMove } = usePlayer();
+  const { player, gainXp, learnMove, pendingLevelUp, dismissLevelUp } = usePlayer();
   const monster = context?.config?.monsters[monsterIndex];
 
   const { battle, lastAction, log, takeTurn, reset } = useBattle(player.baseStats, monster!);
@@ -98,8 +98,34 @@ export default function BattleScreen({ monsterIndex, onWin, onBack }: Props) {
         <BattleLog entries={log} />
       </div>
 
+      {/* Level-up overlay — shown on top of everything, dismissed before continuing */}
+      {pendingLevelUp && (
+        <div className="fixed inset-0 z-30 flex flex-col items-center justify-center gap-6"
+          style={{ background: "rgba(13,13,26,0.97)" }}>
+          <span className="text-yellow-400 text-xl leading-relaxed">level up!</span>
+          <span className="text-white leading-relaxed" style={{ fontSize: 10 }}>
+            level {pendingLevelUp.level}
+          </span>
+          <div className="flex flex-col gap-2 pixel-panel bg-gray-800 px-8 py-4">
+            {(["health", "attack", "defense", "magic"] as const).map((stat) => (
+              <div key={stat} className="flex justify-between gap-8" style={{ fontSize: 8 }}>
+                <span className="text-gray-400 uppercase">{stat}</span>
+                <span className="text-green-400">{pendingLevelUp.stats[stat]}</span>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={dismissLevelUp}
+            className="btn-pixel px-8 py-3 bg-yellow-500 text-gray-900 font-bold border-2 border-yellow-700"
+            style={{ fontSize: 8 }}
+          >
+            ok
+          </button>
+        </div>
+      )}
+
       {/* Victory / defeat overlay — full screen */}
-      {isOver && (
+      {isOver && !pendingLevelUp && (
         <div className="fixed inset-0 z-20 flex flex-col items-center justify-center gap-8"
           style={{ background: "rgba(13,13,26,0.96)" }}>
           <span className="text-white text-xl leading-relaxed">

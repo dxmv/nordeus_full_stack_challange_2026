@@ -85,3 +85,10 @@ export interface PlayerState {
   learnedMoves: Move[];
   equippedMoves: Move[];
 }
+
+export interface SaveData {
+  player: PlayerState;
+  clearedCount: number;
+  config: RunConfig;
+  savedAt: string;
+}

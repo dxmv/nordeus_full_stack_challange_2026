@@ -25,31 +25,49 @@ const INITIAL_STATE: PlayerState = {
   equippedMoves: [...HERO_DEFAULT_MOVES],
 };
 
+interface LevelUpInfo {
+  level: number;
+  stats: Stats;
+}
+
 interface PlayerContextValue {
   player: PlayerState;
+  pendingLevelUp: LevelUpInfo | null;
+  dismissLevelUp: () => void;
   gainXp: (amount: number) => void;
   learnMove: (move: Move) => void;
   equipMove: (move: Move) => void;
   unequipMove: (moveId: string) => void;
+  restorePlayer: (state: PlayerState) => void;
 }
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
 
 export function PlayerProvider({ children }: { children: ReactNode }) {
   const [player, setPlayer] = useState<PlayerState>(INITIAL_STATE);
+  const [pendingLevelUp, setPendingLevelUp] = useState<LevelUpInfo | null>(null);
 
   function gainXp(amount: number) {
     setPlayer((prev) => {
       let { xp, level, xpToNextLevel, baseStats } = prev;
       xp += amount;
+      let didLevelUp = false;
       while (xp >= xpToNextLevel) {
         xp -= xpToNextLevel;
         level += 1;
         xpToNextLevel = XP_PER_LEVEL(level);
         baseStats = buildStats(level);
+        didLevelUp = true;
+      }
+      if (didLevelUp) {
+        setPendingLevelUp({ level, stats: baseStats });
       }
       return { ...prev, xp, level, xpToNextLevel, baseStats };
     });
+  }
+
+  function dismissLevelUp() {
+    setPendingLevelUp(null);
   }
 
   function learnMove(move: Move) {
@@ -74,8 +92,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     }));
   }
 
+  function restorePlayer(state: PlayerState) {
+    setPlayer(state);
+  }
+
   return (
-    <PlayerContext.Provider value={{ player, gainXp, learnMove, equipMove, unequipMove }}>
+    <PlayerContext.Provider value={{ player, pendingLevelUp, dismissLevelUp, gainXp, learnMove, equipMove, unequipMove, restorePlayer }}>
       {children}
     </PlayerContext.Provider>
   );

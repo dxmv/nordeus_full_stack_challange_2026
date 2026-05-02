@@ -7,6 +7,7 @@ interface RunConfigContextValue {
   loading: boolean;
   error: string | null;
   fetchConfig: () => Promise<boolean>;
+  restoreConfig: (config: RunConfig) => void;
 }
 
 export const RunConfigContext = createContext<RunConfigContextValue | null>(null);
@@ -33,8 +34,10 @@ export function RunConfigProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const restoreConfig = (config: RunConfig): void => setConfig(config);
+
   return (
-    <RunConfigContext.Provider value={{ config, loading, error, fetchConfig }}>
+    <RunConfigContext.Provider value={{ config, loading, error, fetchConfig, restoreConfig }}>
       {children}
     </RunConfigContext.Provider>
   );

@@ -11,9 +11,10 @@ interface Props {
   clearedCount: number;
   onFight: (monsterIndex: number) => void;
   onBack: () => void;
+  onSaveAndExit: () => void;
 }
 
-export default function MapScreen({ clearedCount, onFight, onBack }: Props) {
+export default function MapScreen({ clearedCount, onFight, onBack, onSaveAndExit }: Props) {
   const context = useContext(RunConfigContext);
   const { player, equipMove, unequipMove } = usePlayer();
   const monsters = context?.config?.monsters ?? [];
@@ -43,7 +44,13 @@ export default function MapScreen({ clearedCount, onFight, onBack }: Props) {
         <span className="mx-auto text-gray-500" style={{ fontSize: 8 }}>
           run overview
         </span>
-        <div className="w-16" />
+        <button
+          onClick={onSaveAndExit}
+          className="btn-pixel px-2 py-1 bg-gray-700 text-gray-300 border-2 border-gray-600"
+          style={{ fontSize: 7 }}
+        >
+          save &amp; exit
+        </button>
       </div>
 
       {/* Encounter map */}
@@ -99,6 +106,46 @@ export default function MapScreen({ clearedCount, onFight, onBack }: Props) {
             </div>
           );
         })}
+      </div>
+
+      {/* Hero stats */}
+      <div className="w-full max-w-3xl pixel-panel bg-gray-800 p-4 flex items-center gap-8">
+        <div className="flex flex-col gap-1">
+          <span className="text-yellow-400 font-bold" style={{ fontSize: 9 }}>hero</span>
+          <span className="text-gray-400" style={{ fontSize: 7 }}>lv. {player.level}</span>
+        </div>
+        {/* XP bar */}
+        <div className="flex flex-col gap-1 flex-1">
+          <div className="flex justify-between" style={{ fontSize: 7 }}>
+            <span className="text-gray-500">xp</span>
+            <span className="text-gray-500">{player.xp} / {player.xpToNextLevel}</span>
+          </div>
+          <div className="w-full h-2 bg-gray-700 border border-gray-600">
+            <div
+              className="h-full bg-blue-500 transition-all duration-300"
+              style={{ width: `${Math.min(100, (player.xp / player.xpToNextLevel) * 100)}%` }}
+            />
+          </div>
+        </div>
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-1" style={{ fontSize: 7 }}>
+          <div className="flex justify-between gap-4">
+            <span className="text-gray-500">HP</span>
+            <span className="text-white">{player.baseStats.health}</span>
+          </div>
+          <div className="flex justify-between gap-4">
+            <span className="text-gray-500">ATK</span>
+            <span className="text-orange-400">{player.baseStats.attack}</span>
+          </div>
+          <div className="flex justify-between gap-4">
+            <span className="text-gray-500">DEF</span>
+            <span className="text-blue-400">{player.baseStats.defense}</span>
+          </div>
+          <div className="flex justify-between gap-4">
+            <span className="text-gray-500">MAG</span>
+            <span className="text-purple-400">{player.baseStats.magic}</span>
+          </div>
+        </div>
       </div>
 
       {/* Move management */}
